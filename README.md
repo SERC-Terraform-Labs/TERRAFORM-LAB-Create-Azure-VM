@@ -410,8 +410,8 @@ Apply your changes to the configuration. Re-run `terraform apply`:
 terraform apply
 ```
 
-When the deployment is finished the public IP address should be output again. Use ssh to connect to the VM:
+When the deployment is finished the public IP address should be output again. Use ssh to connect to the VM, this time using the key file:
 
 ```
-ssh azureuser@<output-ip-address>
+ssh azureuser@<output-ip-address> -i azurevm.pem
 ```

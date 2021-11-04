@@ -330,3 +330,88 @@ When the deployment is finished the public IP address should be output again. Us
 ```
 ssh azureuser@<output-ip-address>
 ```
+
+## Use SSH Keys
+
+Using a password for SSH connection isn't the most secure way. It would be better if we use a key pair.
+
+### Generate SSH Keys
+
+Create a file called `key-gen.tf` and add the following block:
+
+```bash
+# Create (and display) an SSH key
+resource "tls_private_key" "example_ssh" {
+    algorithm = "RSA"
+    rsa_bits = 4096
+}
+output "tls_private_key" { 
+        value = tls_private_key.example_ssh.private_key_pem 
+        sensitive = true
+}
+
+# Write SSH key to file
+resource "local_file" "private_key" {
+    content         = tls_private_key.example_ssh.private_key_pem
+    filename        = "azurevm.pem"
+    file_permission = "0600"
+}
+```
+
+This will create an SSH key pair for us and output the private key to a `azurevm.pem` file. (If you are on Windows, follow the instructions on [Stack Exchange](https://superuser.com/a/1329702) for setting the file permissions correctly.)
+
+## Add Key to VM
+
+The public key needs to be added to the VM. Additionally, we need to disable password login. Modify the `azurerm_linux_virtual_machine` block in `main.tf`:
+
+```diff
+# Create virtual machine
+resource "azurerm_linux_virtual_machine" "terraformvm" {
+    name                  = "terraformVM"
+    location              = "eastus"
+    resource_group_name   = azurerm_resource_group.terraformrg.name
+    network_interface_ids = [azurerm_network_interface.terraformnic.id]
+    size                  = "Standard_B1s"
+
+    os_disk {
+        caching              = "ReadWrite"
+        storage_account_type = "Standard_LRS"
+    }
+
+    source_image_reference {
+        publisher = "Canonical"
+        offer     = "UbuntuServer"
+        sku       = "18.04-LTS"
+        version   = "latest"
+    }
+
+    computer_name  = "demovm"
+    admin_username = "azureuser"
+-    disable_password_authentication = false
++    disable_password_authentication = true
+-    admin_password = "NotGoodPassword1234"
+
++    admin_ssh_key {
++        username       = "azureuser"
++        public_key     = tls_private_key.example_ssh.public_key_openssh
++    }
++
+    tags = {
+        environment = "Terraform Demo"
+    }
+}
+```
+
+### Try Connecting
+
+Apply your changes to the configuration. Re-run `terraform apply`:
+
+```bash
+terraform apply
+```
+
+When the deployment is finished the public IP address should be output again. Use ssh to connect to the VM:
+
+```
+ssh azureuser@<output-ip-address>
+```

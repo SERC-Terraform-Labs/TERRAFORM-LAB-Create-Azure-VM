@@ -1,0 +1,82 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+    branches:
+    - '*'
+    - '!status'
+    - '!feedback'
+  workflow_dispatch:
+
+jobs:
+  grade:
+    name: Autograding
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: mock_access_key
+      AWS_SECRET_ACCESS_KEY: mock_secret_key
+      AWS_DEFAULT_REGION: 'us-west-2'
+    services:
+      localstack:
+        image: localstack/localstack:latest
+        env:
+          # SERVICES: cloudformation,iam,sts,ssm,s3,cloudwatch,cloudwatch-logs,lambda,dynamodb,apigateway
+          # DEFAULT_REGION: eu-west-1
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        ports:
+          - 4566:4566
+          - 4571:4571
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ env.AWS_MOCK_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ env.AWS_MOCK_SECRET_ACCESS_KEY }}
+      #     aws-region: none
+
+      - run: aws configure list
+      - run: docker ps
+      
+      - uses: education/autograding@v1
+        name: "** Grading **"
+        id: autograde
+
+    outputs:
+      grading-score: ${{ steps.autograde.outputs.Points }}
+
+  # job to build activity status icons
+  build-activity-icons:
+    name: Build Activity Icons
+    runs-on: ubuntu-latest
+    if: always()
+    needs: grade
+    steps:
+      # need to checkout whole repo
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # switch to status branch
+      - run: git checkout status || git checkout -b status
+
+      # create points bar
+      - name: points bar
+        uses: markpatterson27/points-bar@v1
+        with:
+          points: ${{ needs.grade.outputs.grading-score }}
+          path: '.github/activity-icons/points-bar.svg'
+
+      # commit and push activity icons if statuses have changed
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add '.github/activity-icons'
+          git commit -m "Add/Update activity icons" || exit 0
+          git push origin status

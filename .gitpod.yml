@@ -1,0 +1,14 @@
+image: ghcr.io/serc-terraform-labs/gitpod-terraform-image:full
+
+vscode:
+  extensions:
+    - github.vscode-pull-request-github
+    # - github.classroom
+    - ms-azuretools.vscode-docker
+    - hashicorp.terraform
+    - amazonwebservices.aws-toolkit-vscode
+    - mhutchie.git-graph
+    # - ms-vscode.azurecli
+    # - ms-azuretools.vscode-azureresourcegroups
+    # - ms-azuretools.vscode-azurevirtualmachines
+    # - ms-vscode.vscode-node-azure-pack

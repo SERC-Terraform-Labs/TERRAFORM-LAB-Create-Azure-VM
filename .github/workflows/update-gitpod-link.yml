@@ -1,0 +1,32 @@
+name: Update GitPod Link
+
+on:
+  create:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Update link
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/feedback' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Switch to main branch
+        run: git checkout main || git checkout master
+
+      - name: Edit README
+        run: sed -i 's~svg)](https://gitpod.io/#.*)~svg)](https://gitpod.io/#https://github.com/${{ github.repository }})~g' README.md
+
+      - name: Commit and push change
+        run: |
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add README.md
+          git commit -m "Updated Open in GitPod link" || exit 0
+          git push

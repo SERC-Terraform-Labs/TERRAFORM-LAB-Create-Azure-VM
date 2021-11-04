@@ -1,0 +1,44 @@
+{
+    "tests": [
+      {
+        "name": "Check for Terraform files.",
+        "setup": "",
+        "run": "ls *.tf  >/dev/null || exit 1",
+        "input": "",
+        "output": "",
+        "comparison": "included",
+        "timeout": 10,
+        "points": 5
+      },
+      {
+        "name": "Terraform Format check",
+        "setup": "",
+        "run": "terraform fmt -check",
+        "input": "",
+        "output": "",
+        "comparison": "included",
+        "timeout": 10,
+        "points": 5
+      },
+      {
+        "name": "Terraform Initialize",
+        "setup": "",
+        "run": "terraform init",
+        "input": "",
+        "output": "",
+        "comparison": "included",
+        "timeout": 10,
+        "points": 0
+      },
+      {
+        "name": "Terraform Validate",
+        "setup": "",
+        "run": "terraform validate",
+        "input": "",
+        "output": "",
+        "comparison": "included",
+        "timeout": 10,
+        "points": 5
+      }
+    ]
+  }

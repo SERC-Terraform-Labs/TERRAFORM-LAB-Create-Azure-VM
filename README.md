@@ -281,7 +281,7 @@ We need to create a network security group and then add security rules to it. Cr
 ```bash
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "terraformnsg" {
-    name                = "myNetworkSecurityGroup"
+    name                = "demoNetworkSecurityGroup"
     location            = "eastus"
     resource_group_name = azurerm_resource_group.terraformrg.name
 

@@ -415,3 +415,13 @@ When the deployment is finished the public IP address should be output again. Us
 ```
 ssh azureuser@<output-ip-address> -i azurevm.pem
 ```
+
+## Destroy
+
+The last step is to de-provision the infrastructure we have created. Run terraform destroy in the terminal:
+
+```bash
+terraform destroy
+```
+
+Finally, check in the [Azure portal](https://portal.azure.com/#blade/HubsExtension/BrowseResourceGroups) that the resource group has been deleted.

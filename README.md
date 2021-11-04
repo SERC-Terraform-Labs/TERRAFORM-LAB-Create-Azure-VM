@@ -162,7 +162,7 @@ resource "azurerm_linux_virtual_machine" "terraformvm" {
     computer_name  = "demovm"
     admin_username = "azureuser"
     disable_password_authentication = false
-    admin_password = "NotGoodPassword"
+    admin_password = "NotGoodPassword1234"
 
     tags = {
         environment = "Terraform Demo"
